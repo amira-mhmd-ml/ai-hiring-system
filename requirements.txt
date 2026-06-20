@@ -1,0 +1,15 @@
+langchain
+langchain-openai
+langchain-google-genai
+langgraph
+pymupdf
+pydantic
+fastapi
+uvicorn
+python-multipart
+asyncpg
+python-dotenv
+streamlit
+requests
+pytest
+pytest-asyncio

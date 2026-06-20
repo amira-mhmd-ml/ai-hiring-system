@@ -1,205 +1,156 @@
-# 🤖 AI Hiring System
+# AI Hiring System
 
-An end-to-end **Multi-Agent AI System** that automates the hiring pipeline — from CV analysis to final HR report — using LangGraph, GPT-4o, and FastAPI.
+A multi-agent AI system that automates the hiring pipeline: CV analysis, AI-driven interviews, candidate scoring, and HR-ready reporting.
 
----
-
-## 🎯 Problem Statement
-
-HR teams waste **40+ hours per week** manually reading CVs, conducting initial interviews, and making subjective hiring decisions.
-
-This system automates the entire pipeline with AI agents that **think, decide, and act autonomously**.
-
----
-
-## 🏗️ System Architecture
+## Architecture
 
 ```
-                    ┌─────────────────────────┐
-                    │      HR Interface        │
-                    │   FastAPI + Dashboard    │
-                    └────────────┬────────────┘
-                                 │
-                    ┌────────────▼────────────┐
-                    │   LangGraph Orchestrator │
-                    │     (Master Brain)       │
-                    └────────────┬────────────┘
-                                 │
-          ┌──────────────────────┼──────────────────────┐
-          │                      │                      │
-┌─────────▼────────┐  ┌─────────▼────────┐  ┌─────────▼────────┐
-│  CV Analyzer     │  │ Interview Agent  │  │  Scoring Agent   │
-│     Agent        │→ │  (LangGraph      │→ │  (Weighted       │
-│  (GPT-4o +       │  │   Loop)          │  │   Ranking)       │
-│   PyMuPDF)       │  │                  │  │                  │
-└──────────────────┘  └──────────────────┘  └─────────┬────────┘
-                                                       │
-                                            ┌─────────▼────────┐
-                                            │  Report Writer   │
-                                            │     Agent        │
-                                            │  (HR-Ready       │
-                                            │   Report)        │
-                                            └──────────────────┘
+CV Analyzer Agent  ->  Interview Agent  ->  Scoring Agent  ->  Report Writer
+                            ^
+                      LangGraph Orchestrator
 ```
 
----
+## Setup
 
-## ✨ Key Features
-
-- **Automated CV Parsing** — Extracts structured data from any PDF using PyMuPDF + GPT-4o
-- **AI-Conducted Interviews** — Dynamic, personalized questions based on CV + Job Description
-- **Objective Scoring** — Weighted evaluation across technical skills, job fit, and interview performance
-- **Executive HR Report** — Decision-ready report with ranked candidates and hiring insights
-- **Production-Ready** — Async processing, retry logic, rate limiting, and error handling
-
----
-
-## 🧠 Tech Stack
-
-| Layer | Technology | Purpose |
-|---|---|---|
-| **LLM** | GPT-4o | Brain of every agent |
-| **Orchestration** | LangGraph | Multi-agent workflow & loops |
-| **LLM Framework** | LangChain | Chains, prompts, structured output |
-| **PDF Processing** | PyMuPDF | CV text extraction |
-| **API** | FastAPI | REST endpoints for HR interface |
-| **Database** | PostgreSQL + asyncpg | Session & results storage |
-| **Validation** | Pydantic | Structured LLM output |
-| **Concurrency** | AsyncIO + Semaphore | Parallel CV processing |
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Python 3.10+
-- OpenAI API Key
-- PostgreSQL (optional for production)
-
-### Installation
-
+### Clone the repository
 ```bash
-# Clone the repository
-git clone https://github.com/amira-mhmd-ml/ai-hiring-system.git
-cd ai-hiring-system
-
-# Create virtual environment
-python -m venv venv
-venv\Scripts\activate  # Windows
-source venv/bin/activate  # Mac/Linux
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Set up environment variables
-cp .env.example .env
-# Add your OPENAI_API_KEY to .env
+git clone https://github.com/amira-mhmd-ml/AI-Hiring-System.git
+cd AI-Hiring-System
 ```
 
-### Run the System
+### 1. Activate the virtual environment
+```bash
+venv\Scripts\activate
+```
 
+### 2. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Add your API key
+Copy `.env.example` to `.env` and fill in your real key:
+```
+GOOGLE_API_KEY=your_key_here
+```
+
+### 4. Run the server
 ```bash
 uvicorn main:app --reload
 ```
 
-Open API docs at: `http://localhost:8000/docs`
-
----
-
-## 📡 API Endpoints
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/upload-cvs` | Upload CVs + Job Description |
-| `POST` | `/analyze/{session_id}` | Start analysis pipeline |
-| `GET` | `/status/{session_id}` | Check processing status |
-| `GET` | `/report/{session_id}` | Get final HR report |
-| `GET` | `/health` | System health check |
-
-### Example Flow
-
-```bash
-# 1. Upload CVs
-POST /upload-cvs
-  - job_description: "Senior AI Engineer..."
-  - files: [cv1.pdf, cv2.pdf, ...]
-
-# 2. Start Analysis
-POST /analyze/{session_id}
-
-# 3. Check Status (poll until complete)
-GET /status/{session_id}
-
-# 4. Get Report
-GET /report/{session_id}
+### 5. Open the API documentation
+```
+http://localhost:8000/docs
 ```
 
----
+## API Endpoints
 
-## 📁 Project Structure
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/upload-cvs` | Upload CVs and job description |
+| POST | `/analyze/{id}` | Start the analysis pipeline |
+| GET | `/status/{id}` | Check processing status |
+| GET | `/report/{id}` | Get the final report |
+| GET | `/health` | Server health check |
+
+## Running the Demo
+
+End-to-end run without starting the API server:
+```bash
+python demo.py path/to/cv1.pdf path/to/cv2.pdf
+```
+
+## Running Tests
+
+```bash
+pytest tests/ -v
+```
+
+27 tests covering CV parsing edge cases, weighted scoring boundaries, and orchestrator routing logic (full success, partial failure, total failure).
+
+## Testing Individual Agents
+
+```bash
+# Test the CV Analyzer
+python -m agents.cv_analyzer path/to/cv.pdf
+
+# Test the Scoring Agent
+python -m agents.scoring_agent
+
+# Test the Report Writer
+python -m agents.report_writer
+```
+
+## Project Structure
 
 ```
 ai-hiring-system/
-│
+|
 ├── agents/
-│   ├── cv_analyzer.py       # CV Analysis Agent
-│   ├── interview_agent.py   # AI Interview Agent (LangGraph)
-│   ├── scoring_agent.py     # Weighted Scoring Agent
-│   ├── report_writer.py     # HR Report Generation Agent
-│   └── orchestrator.py      # Master Orchestrator (LangGraph)
-│
-├── uploads/                 # Uploaded CV storage
-├── main.py                  # FastAPI application
-├── requirements.txt         # Dependencies
-├── .env.example             # Environment variables template
+│   ├── __init__.py
+│   ├── cv_analyzer.py      # CV Analysis Agent
+│   ├── interview_agent.py  # Interview Agent (LangGraph)
+│   ├── scoring_agent.py    # Scoring & Ranking Agent
+│   ├── report_writer.py    # Report Generation Agent
+│   └── orchestrator.py     # Master Orchestrator (LangGraph)
+|
+├── tests/
+│   ├── test_cv_analyzer.py
+│   ├── test_scoring_agent.py
+│   └── test_orchestrator.py
+|
+├── uploads/                # CV file storage (gitignored)
+├── venv/                   # Virtual environment (gitignored)
+├── main.py                 # FastAPI application
+├── demo.py                 # End-to-end demo script
+├── requirements.txt
+├── .env.example             # Template for required environment variables
 └── README.md
 ```
 
----
+## Deployment (Render / Railway - Free Tier)
 
-## 🔑 Key Engineering Decisions
+This project runs locally by default but is ready for a free-tier cloud deploy:
 
-**Why LangGraph over LangChain?**
-LangGraph supports loops and conditional edges — essential for the interview agent that needs to decide the next question based on the previous answer.
+1. Push to GitHub (after confirming `.env` is gitignored - see `.gitignore`).
+2. Render: New -> Web Service -> connect repo -> Build command: `pip install -r requirements.txt` -> Start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`.
+3. Environment variables: add `GOOGLE_API_KEY` (or `OPENAI_API_KEY`) in Render's dashboard - never in code.
+4. Known limitation: the current `sessions = {}` in-memory store resets on every redeploy/restart. For a real deployed demo, swap to PostgreSQL before relying on it for persistent sessions.
 
-**Why Async + Semaphore?**
-Processing 500 CVs sequentially would take 83+ minutes. With async concurrency (10 parallel), it drops to ~8 minutes.
+## Privacy & PII Handling
 
-**Why Weighted Scoring (not just interview answers)?**
-Different candidates get different questions, making raw answer comparison unfair. Weighted scoring across CV fit (30%), interview (50%), and experience (20%) ensures objective evaluation.
+This system processes sensitive personal data (names, contact details, career history). It follows these principles:
 
-**Why Exponential Backoff?**
-API rate limits are inevitable at scale. Retrying immediately increases pressure. Backoff (1s → 2s → 4s) gives the API time to recover.
+- **Storage**: uploaded CVs are saved under `uploads/{session_id}/`, isolated per session and never mixed between hiring rounds.
+- **Retention**: CV files are retained for 7 days after upload, giving HR enough time to review the report or revisit a candidate's original file. After 7 days, files should be deleted automatically (a cleanup job is not yet scheduled - currently a manual/cron task to implement).
+- **Not exposed**: the `uploads/` directory is excluded from git via `.gitignore` and is never served as a public static folder.
+- **Database**: in the current in-memory `sessions` dict, candidate data lives only for the process lifetime. In a PostgreSQL version, the same 7-day retention policy should apply via a scheduled delete job on sessions older than 7 days (cascading to all related tables).
+- **Known gaps**: encryption at rest, a GDPR-style "right to be forgotten" endpoint, and audit logging of who accessed which report are not implemented yet. These are noted as known gaps, not silently ignored.
 
----
+## Key Engineering Decision: Why LangGraph, Not a Sequential LangChain Chain
 
-## 📊 Performance
+**The problem**
+The Interview Agent cannot follow a fixed script. It needs to ask a question, read the candidate's answer, and decide the next question based on that answer - sometimes going deeper on a weak answer, sometimes moving on. A standard LangChain sequential chain (`prompt | llm | prompt | llm`) executes a fixed, linear sequence with no way to loop back or branch based on runtime output.
 
-| Metric | Value |
-|---|---|
-| CV Processing | ~8 min for 500 CVs (async) |
-| Interview Questions | 5 dynamic questions per candidate |
-| Scoring Accuracy | Weighted 3-factor evaluation |
-| API Retry | 3 attempts with exponential backoff |
+**Options considered**
+1. LangChain sequential chain - simplest to write, but cannot loop or branch.
+2. A manual Python while-loop calling the LLM directly - would work, but discards LangChain's prompt/output tooling and becomes unmaintainable as more agents are added.
+3. LangGraph StateGraph - models the workflow as nodes and conditional edges, with a shared state object that persists across turns.
 
----
+**Why LangGraph**
+It treats the interview as a graph with a real decision point (`receive_answer -> generate_question or evaluate`), driven by `add_conditional_edges`. The same pattern scales cleanly to the Orchestrator, which needs the identical "did this stage succeed enough to continue?" logic between CV Analysis, Interview, Scoring, and Report stages.
 
-## 🛣️ Roadmap
+**Known trade-off**
+LangGraph adds a real learning curve and another abstraction layer on top of LangChain. For a strictly linear, no-loop pipeline (for example, a simple RAG Q&A), it would be unnecessary overhead. The decision only pays off because this system genuinely needs loops and conditional stopping, not because LangGraph is always "better."
 
-- [ ] Voice interviews using Whisper + ElevenLabs
-- [ ] PostgreSQL persistent storage
-- [ ] React Dashboard for HR
-- [ ] Docker deployment
-- [ ] Multi-language CV support
+## Key Technologies
 
----
-
-## 👩‍💻 Author
-
-Built as a portfolio project demonstrating **Multi-Agent AI Systems** using LangGraph and GPT-4o.
-
----
-
-## 📄 License
-
-MIT License
+- **LangGraph** - multi-agent orchestration and interview loop
+- **LangChain + Gemini/GPT-4o** - LLM integration
+- **PyMuPDF** - PDF text extraction
+- **FastAPI** - REST API
+- **Pydantic** - data validation and structured output
+- **Asyncio + Semaphore** - concurrent CV processing
+- **Streamlit** - HR-facing dashboard
+- **pytest** - automated testing
