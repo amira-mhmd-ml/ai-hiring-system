@@ -10,6 +10,29 @@ CV Analyzer Agent  ->  Interview Agent  ->  Scoring Agent  ->  Report Writer
                       LangGraph Orchestrator
 ```
 
+### LangGraph Interview Flow
+
+```mermaid
+stateDiagram-v2
+    [*] --> generate_question: start_interview()
+
+    generate_question --> waiting_for_answer: returns question to API
+
+    waiting_for_answer --> generate_question: submit_answer()\n[questions < 5]
+
+    waiting_for_answer --> interview_complete: submit_answer()\n[questions == 5]
+
+    interview_complete --> next_candidate: [more candidates]
+    interview_complete --> scoring: [last candidate]
+
+    next_candidate --> generate_question: start_interview()
+
+    scoring --> report: rank_all_candidates()
+    report --> [*]: format_report()
+```
+
+The key architectural decision: each node pauses after generating one question and returns control to the HTTP layer. The `MemorySaver` checkpointer preserves state across HTTP requests using a `thread_id` tied to the session.
+
 ## Screenshots
 
 **Step 1 — Upload CVs and Job Description**
