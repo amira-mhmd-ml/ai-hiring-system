@@ -16,13 +16,13 @@ CV Analyzer Agent  ->  Interview Agent  ->  Scoring Agent  ->  Report Writer
 ![Upload CVs](assets/image.png)
 
 **Step 2 — AI Interview in Progress (real-time Q&A per candidate)**
-![Interview in Progress](assets/q-streamlite.png)
+![Interview in Progress](assets/image18.png)
 
 **Step 3 — Scoring and Report Generation**
-![Generating Report](assets/image4.png)
+![Generating Report](assets/image5.png)
 
 **Step 4 — Final HR Report**
-![Final Report](assets/image5.png)
+![Final Report](assets/image.png)
 
 **API Documentation (Swagger UI)**
 ![API Docs](assets/API%20Docs%20(Swagger).png)
